@@ -8,72 +8,76 @@
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700&family=Inter:wght@300;400;700&display=swap');
         
-        body {
-            background-color: #121212; /* Preto Fosco */
-            color: #e2e8f0;
-            font-family: 'Inter', sans-serif;
-        }
-
+        body { background-color: #121212; color: #e2e8f0; font-family: 'Inter', sans-serif; }
         .font-tech { font-family: 'Orbitron', sans-serif; }
-        
-        .orange-glow {
-            box-shadow: 0 0 15px rgba(255, 102, 0, 0.3);
-            border: 1px solid #ff6600;
-        }
-
-        .winner-card {
-            order: -1; /* Joga para o topo no flex/grid */
-            border: 2px solid #ff6600;
-            background: linear-gradient(145deg, #1a1a1a, #2a1500);
-            transform: scale(1.02);
-            box-shadow: 0 0 25px rgba(255, 102, 0, 0.5);
-        }
-
-        .court-line {
-            background-image: radial-gradient(#ff6600 1px, transparent 1px);
-            background-size: 20px 20px;
-            opacity: 0.1;
-        }
+        .orange-glow { box-shadow: 0 0 15px rgba(255, 102, 0, 0.3); border: 1px solid #ff6600; }
+        .winner-card { order: -1; border: 2px solid #ff6600; background: linear-gradient(145deg, #1a1a1a, #2a1500); box-shadow: 0 0 25px rgba(255, 102, 0, 0.5); }
+        .court-line { background-image: radial-gradient(#ff6600 1px, transparent 1px); background-size: 20px 20px; opacity: 0.1; }
+        .quadra-badge { font-size: 0.7rem; padding: 2px 8px; border-radius: 4px; font-weight: bold; margin-top: 5px; display: inline-block; }
+        .bg-quadra-a { background-color: #ff6600; color: #000; }
+        .bg-quadra-b { background-color: #0088ff; color: #fff; }
     </style>
 </head>
 <body class="p-4 md:p-8">
 
     <div class="max-w-6xl mx-auto">
-        <header class="flex justify-between items-center mb-10 border-b border-orange-600/30 pb-6">
+        <header class="flex flex-col md:flex-row justify-between items-start md:items-center mb-10 border-b border-orange-600/30 pb-6 gap-4">
             <div>
                 <h1 class="text-4xl font-tech font-bold text-orange-500 tracking-tighter">VÔLEI <span class="text-white">ALBUM</span></h1>
                 <p class="text-gray-400 text-sm">Gerenciador de Partidas & Figurinhas</p>
             </div>
-            <div class="flex gap-4">
-                <select id="playerCount" class="bg-black border border-orange-500 text-orange-500 p-2 rounded font-bold">
-                    <option value="3">3 Jogadores</option>
-                    <option value="4">4 Jogadores</option>
-                    <option value="5">5 Jogadores</option>
-                    <option value="6" selected>6 Jogadores</option>
-                </select>
-                <button onclick="addTeam()" class="bg-orange-600 hover:bg-orange-500 text-black font-bold py-2 px-6 rounded-full transition-all uppercase text-sm tracking-widest">
-                    + Criar Time
+            
+            <div class="flex flex-wrap gap-4">
+                <div class="flex flex-col">
+                    <label class="text-[0.6rem] uppercase text-gray-500 mb-1">Jogadores/Time</label>
+                    <select id="playerCount" class="bg-black border border-orange-500 text-orange-500 p-2 rounded font-bold text-sm">
+                        <option value="3">3x3</option>
+                        <option value="4">4x4</option>
+                        <option value="5">5x5</option>
+                        <option value="6" selected>6x6</option>
+                    </select>
+                </div>
+                <button onclick="addTeam()" class="bg-orange-600 hover:bg-orange-500 text-black font-bold py-2 px-6 rounded-full transition-all uppercase text-sm self-end">
+                    + Novo Time
                 </button>
             </div>
         </header>
 
-        <div id="teamsGrid" class="grid grid-cols-1 md:grid-cols-2 gap-8 flex">
+        <section class="mb-10 bg-[#1a1a1a] p-6 rounded-xl border border-gray-800">
+            <h3 class="font-tech text-orange-500 mb-4 text-sm tracking-widest uppercase">Sorteio de Jogadores</h3>
+            <div class="flex flex-col gap-4">
+                <textarea id="playerPool" placeholder="Insira nomes separados por vírgula ou linha..." class="bg-black border border-gray-700 p-3 rounded text-sm h-24 focus:border-orange-500 outline-none"></textarea>
+                <button onclick="drawTeams()" class="bg-white text-black font-bold py-2 px-4 rounded hover:bg-orange-500 transition-colors uppercase text-xs">
+                    Realizar Sorteio Automático
+                </button>
+            </div>
+        </section>
+
+        <div id="teamsGrid" class="grid grid-cols-1 md:grid-cols-2 gap-8 mb-20">
             </div>
     </div>
 
     <template id="teamTemplate">
-        <div class="team-card bg-[#1a1a1a] rounded-xl p-6 transition-all duration-500 relative overflow-hidden">
+        <div class="team-card bg-[#1a1a1a] rounded-xl p-6 transition-all duration-500 relative overflow-hidden flex flex-col">
             <div class="court-line absolute inset-0 pointer-events-none"></div>
             
             <div class="relative z-10">
                 <div class="flex justify-between items-start mb-4">
-                    <div>
-                        <h2 class="team-name text-2xl font-tech text-white italic">TIME 1</h2>
-                        <button onclick="markWinner(this)" class="win-btn mt-2 text-xs border border-gray-600 text-gray-400 px-3 py-1 rounded hover:border-orange-500 hover:text-orange-500 transition-colors">
-                            MARCAR VENCEDOR
-                        </button>
+                    <div class="flex-1">
+                        <div class="flex items-center gap-2">
+                            <h2 class="team-name text-2xl font-tech text-white italic">TIME X</h2>
+                            <button onclick="deleteTeam(this)" class="text-gray-600 hover:text-red-500 text-xs">✕</button>
+                        </div>
+                        <div class="flex flex-wrap gap-2 mt-2">
+                            <button onclick="markWinner(this)" class="win-btn text-[0.6rem] border border-gray-600 text-gray-400 px-2 py-1 rounded hover:border-orange-500 transition-colors uppercase">Vencedor</button>
+                            <button onclick="assignCourt(this, 'A')" class="court-a-btn text-[0.6rem] border border-gray-600 text-gray-400 px-2 py-1 rounded hover:border-orange-500 transition-colors uppercase">Quadra A</button>
+                            <button onclick="assignCourt(this, 'B')" class="court-b-btn text-[0.6rem] border border-gray-600 text-gray-400 px-2 py-1 rounded hover:border-orange-500 transition-colors uppercase">Quadra B</button>
+                            <button onclick="assignCourt(this, null)" class="text-[0.6rem] text-gray-600 hover:underline">Sair da Quadra</button>
+                        </div>
+                        <div class="court-status"></div>
                     </div>
-                    <div class="text-right">
+
+                    <div class="text-right ml-4">
                         <div class="text-[0.6rem] text-orange-500 font-bold tracking-widest uppercase">Score</div>
                         <div class="flex items-center gap-3">
                             <button onclick="updateScore(this, -1)" class="text-gray-500 hover:text-white">-</button>
@@ -91,86 +95,196 @@
     </template>
 
     <script>
-        let teamCount = 0;
+        let state = {
+            teams: JSON.parse(localStorage.getItem('volei_album_data')) || []
+        };
 
-        function addTeam() {
-            teamCount++;
-            const playersPerTeam = document.getElementById('playerCount').value;
-            const grid = document.getElementById('teamsGrid');
-            const template = document.getElementById('teamTemplate');
-            const clone = template.content.cloneNode(true);
-
-            // Configura Nome e ID
-            const card = clone.querySelector('.team-card');
-            card.id = `team-${teamCount}`;
-            clone.querySelector('.team-name').innerText = `TIME ${teamCount}`;
-
-            // Gera os slots de figurinhas
-            const stickersGrid = clone.querySelector('.stickers-grid');
-            for (let i = 1; i <= playersPerTeam; i++) {
-                const slot = document.createElement('div');
-                slot.className = "aspect-[3/4] bg-black border border-dashed border-gray-700 rounded-md flex items-center justify-center cursor-pointer hover:border-orange-500 transition-all overflow-hidden relative group";
-                slot.innerHTML = `
-                    <input type="file" accept="image/*" class="hidden" onchange="previewImage(this)">
-                    <span class="text-gray-600 group-hover:text-orange-500 text-2xl font-bold">+</span>
-                    <img class="absolute inset-0 w-full h-full object-cover hidden">
-                `;
-                slot.onclick = () => slot.querySelector('input').click();
-                stickersGrid.appendChild(slot);
-            }
-
-            grid.appendChild(clone);
+        function saveData() {
+            localStorage.setItem('volei_album_data', JSON.stringify(state.teams));
+            render();
         }
 
-        function previewImage(input) {
+        function addTeam(playerNames = []) {
+            const playersPerTeam = parseInt(document.getElementById('playerCount').value);
+            const newTeam = {
+                id: Date.now() + Math.random(),
+                name: `TIME ${state.teams.length + 1}`,
+                score: 0,
+                isWinner: false,
+                court: null,
+                players: Array.from({ length: playersPerTeam }, (_, i) => ({
+                    id: i,
+                    name: playerNames[i] || "",
+                    photo: null
+                }))
+            };
+            state.teams.push(newTeam);
+            saveData();
+        }
+
+        function deleteTeam(btn) {
+            const card = btn.closest('.team-card');
+            const index = state.teams.findIndex(t => t.id == card.dataset.id);
+            state.teams.splice(index, 1);
+            // Reindexar nomes
+            state.teams.forEach((t, i) => t.name = `TIME ${i + 1}`);
+            saveData();
+        }
+
+        function updateScore(btn, val) {
+            const id = btn.closest('.team-card').dataset.id;
+            const team = state.teams.find(t => t.id == id);
+            team.score = Math.max(0, team.score + val);
+            saveData();
+        }
+
+        function resetScore(btn) {
+            const id = btn.closest('.team-card').dataset.id;
+            const team = state.teams.find(t => t.id == id);
+            team.score = 0;
+            saveData();
+        }
+
+        function markWinner(btn) {
+            const id = btn.closest('.team-card').dataset.id;
+            state.teams.forEach(t => {
+                if (t.id == id) t.isWinner = !t.isWinner;
+                else t.isWinner = false;
+            });
+            saveData();
+        }
+
+        function assignCourt(btn, court) {
+            const id = btn.closest('.team-card').dataset.id;
+            state.teams.forEach(t => {
+                if (t.id == id) t.court = court;
+                else if (court && t.court === court) t.court = null; // Remove outro time que estava na quadra
+            });
+            saveData();
+        }
+
+        function updatePlayerName(teamId, playerIndex, name) {
+            const team = state.teams.find(t => t.id == teamId);
+            team.players[playerIndex].name = name;
+            localStorage.setItem('volei_album_data', JSON.stringify(state.teams));
+        }
+
+        function previewImage(input, teamId, playerIndex) {
             if (input.files && input.files[0]) {
                 const reader = new FileReader();
-                const img = input.parentElement.querySelector('img');
-                const span = input.parentElement.querySelector('span');
-                
                 reader.onload = function(e) {
-                    img.src = e.target.result;
-                    img.classList.remove('hidden');
-                    span.classList.add('hidden');
-                    input.parentElement.style.borderStyle = 'solid';
+                    const team = state.teams.find(t => t.id == teamId);
+                    team.players[playerIndex].photo = e.target.result;
+                    saveData();
                 }
                 reader.readAsDataURL(input.files[0]);
             }
         }
 
-        function updateScore(btn, val) {
-            const scoreSpan = btn.parentElement.querySelector('.score-value');
-            let current = parseInt(scoreSpan.innerText);
-            scoreSpan.innerText = Math.max(0, current + val);
+        function deletePlayer(teamId, playerIndex) {
+            const team = state.teams.find(t => t.id == teamId);
+            team.players[playerIndex].name = "";
+            team.players[playerIndex].photo = null;
+            saveData();
         }
 
-        function resetScore(btn) {
-            btn.parentElement.querySelector('.score-value').innerText = "0";
-        }
+        function drawTeams() {
+            const input = document.getElementById('playerPool').value;
+            let names = input.split(/[,\n]/).map(n => n.trim()).filter(n => n !== "");
+            if (names.length === 0) return alert("Insira nomes para o sorteio.");
 
-        function markWinner(btn) {
-            const allCards = document.querySelectorAll('.team-card');
-            const targetCard = btn.closest('.team-card');
-            const isWinner = targetCard.classList.contains('winner-card');
+            const size = parseInt(document.getElementById('playerCount').value);
+            const totalTeams = Math.ceil(names.length / size);
+            
+            // Embaralhar
+            names.sort(() => Math.random() - 0.5);
 
-            // Remove vencedor de todos
-            allCards.forEach(card => {
-                card.classList.remove('winner-card');
-                card.querySelector('.win-btn').innerText = "MARCAR VENCEDOR";
-                card.querySelector('.win-btn').classList.remove('bg-orange-600', 'text-black');
-            });
+            // Completar se necessário
+            const needed = totalTeams * size;
+            const originalNames = [...names];
+            while (names.length < needed) {
+                names.push(originalNames[Math.floor(Math.random() * originalNames.length)]);
+            }
 
-            // Se não era vencedor, torna vencedor
-            if (!isWinner) {
-                targetCard.classList.add('winner-card');
-                btn.innerText = "🏆 VENCEDOR";
-                btn.classList.add('bg-orange-600', 'text-black');
+            state.teams = []; // Limpa times atuais para o novo sorteio
+            for (let i = 0; i < totalTeams; i++) {
+                addTeam(names.slice(i * size, (i + 1) * size));
             }
         }
 
-        // Criar dois times iniciais
-        addTeam();
-        addTeam();
+        function render() {
+            const grid = document.getElementById('teamsGrid');
+            grid.innerHTML = "";
+            const template = document.getElementById('teamTemplate');
+
+            // Ordenação: Vencedor primeiro, depois por quadra, depois o resto
+            const sortedTeams = [...state.teams].sort((a, b) => {
+                if (a.isWinner) return -1;
+                if (b.isWinner) return 1;
+                if (a.court && !b.court) return -1;
+                if (!a.court && b.court) return 1;
+                return 0;
+            });
+
+            sortedTeams.forEach(team => {
+                const clone = template.content.cloneNode(true);
+                const card = clone.querySelector('.team-card');
+                card.dataset.id = team.id;
+                
+                if (team.isWinner) card.classList.add('winner-card');
+                
+                clone.querySelector('.team-name').innerText = team.name;
+                clone.querySelector('.score-value').innerText = team.score;
+
+                // Status da Quadra
+                if (team.court) {
+                    const badge = document.createElement('div');
+                    badge.className = `quadra-badge bg-quadra-${team.court.toLowerCase()}`;
+                    badge.innerText = `NA QUADRA ${team.court}`;
+                    clone.querySelector('.court-status').appendChild(badge);
+                    card.style.border = team.court === 'A' ? '2px solid #ff6600' : '2px solid #0088ff';
+                }
+
+                if (team.isWinner) {
+                    const winBtn = clone.querySelector('.win-btn');
+                    winBtn.innerText = "🏆 VENCEDOR";
+                    winBtn.classList.add('bg-orange-600', 'text-black');
+                }
+
+                // Stickers
+                const sGrid = clone.querySelector('.stickers-grid');
+                team.players.forEach((player, idx) => {
+                    const slot = document.createElement('div');
+                    slot.className = "aspect-[3/4] bg-black border border-gray-700 rounded-md flex flex-col items-center justify-center cursor-pointer hover:border-orange-500 transition-all overflow-hidden relative group";
+                    
+                    const imgHtml = player.photo ? `<img src="${player.photo}" class="absolute inset-0 w-full h-full object-cover">` : `<span class="text-gray-600 group-hover:text-orange-500 text-xl font-bold">+</span>`;
+                    
+                    slot.innerHTML = `
+                        <input type="file" accept="image/*" class="hidden" onchange="previewImage(this, ${team.id}, ${idx})">
+                        ${imgHtml}
+                        <div class="absolute bottom-0 w-full bg-black/70 p-1">
+                            <input type="text" value="${player.name}" placeholder="Nome" 
+                                class="w-full bg-transparent text-[0.6rem] text-center text-white outline-none"
+                                onchange="updatePlayerName(${team.id}, ${idx}, this.value)"
+                                onclick="event.stopPropagation()">
+                        </div>
+                        <button onclick="event.stopPropagation(); deletePlayer(${team.id}, ${idx})" class="absolute top-0 right-0 p-1 text-[0.5rem] bg-red-600 text-white opacity-0 group-hover:opacity-100 transition-opacity">X</button>
+                    `;
+                    slot.onclick = () => slot.querySelector('input').click();
+                    sGrid.appendChild(slot);
+                });
+
+                grid.appendChild(clone);
+            });
+        }
+
+        // Inicialização
+        if (state.teams.length === 0) {
+            addTeam();
+            addTeam();
+        } else {
+            render();
+        }
     </script>
 </body>
 </html>
